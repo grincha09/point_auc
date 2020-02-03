@@ -22,10 +22,16 @@ setInterval(function() {
 function checker(message){
 	for (let i = 0; i < img.length; i++) {
 		if (message.indexOf(img[i]) > -1) {
-			return true;
+			return 1;
 		}
 	}
-	return false;
+	if(message.indexOf("youtube.com/watch") > -1){
+		return 2;
+	}
+	if(message.indexOf("youtu.be") > -1){
+		return 3;
+	}
+	return 0;
 }
 
 setInterval(function() {
@@ -36,7 +42,7 @@ setInterval(function() {
     {
 		//ищем картинки
 		
-        if( checker(messages[i].innerText) ) //если ссылка содержит расширение
+        if( checker(messages[i].innerText) === 1) //если ссылка содержит расширение
         {
 			let children = messages[i].children; //берем всех детей сообщения
 			for(let j = 0; j < children.length; j++) //перебираем детей
@@ -52,55 +58,41 @@ setInterval(function() {
         }
 		
 		//ищем ютуб
-		
-		if(messages[i].firstChild != null)//проверка на существование
-		{
-			if (messages[i].firstChild.innerText.indexOf("!sr") == -1)//если не реквест
+
+		let YT_type = checker(messages[i].innerText);
+        if(YT_type === 0) continue;
+        let YT_header;
+		let beforeId;
+		let afterId;
+		if(	YT_type === 2) {//если ютуб 1
+			YT_header = "youtube.com";
+			beforeId = "v=";
+			afterId = "&";
+		}
+		else if (YT_type === 3){//если ютуб 2
+			YT_header = "youtu.be";
+			beforeId = "/";
+			afterId = "?";
+		}
+
+		if(messages[i].firstChild != null && messages[i].firstChild.innerText.indexOf("!sr") == -1){ //если не реквест
+			let children = messages[i].children; //берем детей
+			for(let j = 0; j < children.length; j++) //перебираем
 			{
-				if(messages[i].innerText.indexOf("youtube.com/watch") > -1) //если это ютуб "первого вида"
+				if(children[j].innerText.indexOf(YT_header) > -1) //нашли нужного
 				{
-					let children = messages[i].children; //берем детей
-					for(let j = 0; j < children.length; j++) //перебираем
-					{
-						if(children[j].innerText.indexOf("youtube.com") > -1) //нашли нужного
-						{
-							let pos = children[j].innerText.indexOf("v="); // берем ссыль
-							if( !(pos>-1) ) continue;
-							let endpos = children[j].innerText.indexOf("&");  //без лишних символов
-							//вставляю ссылку и табнейл
-							if (endpos > -1 && endpos>pos) //если есть доп символы
-								children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
-									children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
-									children[j].innerText.substring(pos+2,endpos) +"/hqdefault.jpg'></img>";
-							else
-								children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
-									children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
-									children[j].innerText.substring(pos+2) +"/hqdefault.jpg'></img>";
-						}
-					}
-				}
-			
-				if(messages[i].innerText.indexOf("youtu.be") > -1) //если это ютуб "второго вида"
-				{
-					let children = messages[i].children; //берем детей
-					for(let j = 0; j < children.length; j++) //перебираем
-					{
-						if(children[j].innerText.indexOf("youtu.be") > -1) //нашли нужного
-						{
-							let pos = children[j].innerText.lastIndexOf("/"); // берем ссыль
-							if( !(pos>-1) ) continue;
-							let endpos = children[j].innerText.indexOf("?");  //без лишних символов
-							//вставляю ссылку и табнейл
-							if (endpos > -1) //если есть доп символы
-								children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
-									children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
-									children[j].innerText.substring(pos+1,endpos) +"/hqdefault.jpg'></img>";
-							else
-								children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
-									children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
-									children[j].innerText.substring(pos+1) +"/hqdefault.jpg'></img>";
-						}
-					}
+					let pos = children[j].innerText.indexOf(beforeId); // берем ссыль
+					if( !(pos>-1) ) continue;
+					let endpos = children[j].innerText.indexOf(afterId);  //без лишних символов
+					//вставляю ссылку и табнейл
+					if (endpos > -1 && endpos>pos) //если есть доп символы
+						children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
+							children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
+							children[j].innerText.substring(pos+(4-YT_type),endpos) +"/hqdefault.jpg'></img>";//тип или 2 или 3, если 2 то удаляю 4-2 символа(v=) иначе 4-3 (/)
+					else
+						children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
+							children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
+							children[j].innerText.substring(pos+(4-YT_type)) +"/hqdefault.jpg'></img>";
 				}
 			}
 		}
