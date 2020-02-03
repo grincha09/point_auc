@@ -20,18 +20,72 @@ setInterval(function() {
 },0); //в отдельном потоке
 
 function checker(message){
+	let result=[];
 	for (let i = 0; i < img.length; i++) {
 		if (message.indexOf(img[i]) > -1) {
-			return 1;
+			result.push(1);
+			break;
 		}
 	}
 	if(message.indexOf("youtube.com/watch") > -1){
-		return 2;
+		result.push(2);
 	}
 	if(message.indexOf("youtu.be") > -1){
-		return 3;
+		result.push(3);
 	}
-	return 0;
+	return result;
+}
+
+function parse_img(message){
+	let children = message.children; //берем всех детей сообщения
+	for(let j = 0; j < children.length; j++) //перебираем детей
+	{
+		if( checker(children[j].innerText) ) //если нашли нужного
+			if(children[j].innerText.indexOf("http") > -1)//если есть http то оставляем как есть
+				children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
+					children[j].innerText+" </span> <img src='" + children[j].innerText +"'></img>"; //вставляем вместо ссылки картинку
+			else//добавляем https
+				children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
+					children[j].innerText+" </span> <img src='https://" + children[j].innerText +"'></img>"; //вставляем вместо ссылки картинку
+	}
+}
+
+function parse_YT(message, type){
+	let YT_header;
+	let beforeId;
+	let afterId;
+	if(	type === 2) {//если ютуб 1
+		YT_header = "youtube.com";
+		beforeId = "v=";
+		afterId = "&";
+	}
+	else if (type === 3){//если ютуб 2
+		YT_header = "youtu.be";
+		beforeId = "e/";
+		afterId = "?";
+	}
+
+	if(message.firstChild != null && message.firstChild.innerText.indexOf("!sr") == -1){ //если не реквест
+		let children = message.children; //берем детей
+		for(let j = 0; j < children.length; j++) //перебираем
+		{
+			if(children[j].innerText.indexOf(YT_header) > -1) //нашли нужного
+			{
+				let pos = children[j].innerText.indexOf(beforeId); // берем ссыль
+				if( !(pos>-1) ) continue;
+				let endpos = children[j].innerText.indexOf(afterId);  //без лишних символов
+				//вставляю ссылку и табнейл
+				if (endpos > -1 && endpos>pos) //если есть доп символы
+					children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
+						children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
+						children[j].innerText.substring(pos+2,endpos).trim() +"/hqdefault.jpg'></img>";
+				else
+					children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
+						children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
+						children[j].innerText.substring(pos+2).trim() +"/hqdefault.jpg'></img>";
+			}
+		}
+	}
 }
 
 setInterval(function() {
@@ -40,62 +94,22 @@ setInterval(function() {
 	
 	for(let i = 0; i < messages.length; i++)  //перебираем все сообщения
     {
+		let check = checker(messages[i].innerText);
+
 		//ищем картинки
-		
-        if( checker(messages[i].innerText) === 1) //если ссылка содержит расширение
-        {
-			let children = messages[i].children; //берем всех детей сообщения
-			for(let j = 0; j < children.length; j++) //перебираем детей
-			{
-				if( checker(children[j].innerText) ) //если нашли нужного
-					if(children[j].innerText.indexOf("http") > -1)//если есть http то оставляем как есть
-						children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
-							children[j].innerText+" </span> <img src='" + children[j].innerText +"'></img>"; //вставляем вместо ссылки картинку
-					else//добавляем https
-						children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
-							children[j].innerText+" </span> <img src='https://" + children[j].innerText +"'></img>"; //вставляем вместо ссылки картинку
-			}
+		if( check.includes(1)){ //если ссылка содержит расширение
+			parse_img(messages[i]);
         }
 		
-		//ищем ютуб
-
-		let YT_type = checker(messages[i].innerText);
-        if(YT_type === 0) continue;
-        let YT_header;
-		let beforeId;
-		let afterId;
-		if(	YT_type === 2) {//если ютуб 1
-			YT_header = "youtube.com";
-			beforeId = "v=";
-			afterId = "&";
+		//ищем ютуб типа 1
+		if(check.includes(2)){
+			parse_YT(messages[i],2);
 		}
-		else if (YT_type === 3){//если ютуб 2
-			YT_header = "youtu.be";
-			beforeId = "/";
-			afterId = "?";
+		//ищем ютуб типа 2
+		if(check.includes(3)){
+			parse_YT(messages[i],3);
 		}
 
-		if(messages[i].firstChild != null && messages[i].firstChild.innerText.indexOf("!sr") == -1){ //если не реквест
-			let children = messages[i].children; //берем детей
-			for(let j = 0; j < children.length; j++) //перебираем
-			{
-				if(children[j].innerText.indexOf(YT_header) > -1) //нашли нужного
-				{
-					let pos = children[j].innerText.indexOf(beforeId); // берем ссыль
-					if( !(pos>-1) ) continue;
-					let endpos = children[j].innerText.indexOf(afterId);  //без лишних символов
-					//вставляю ссылку и табнейл
-					if (endpos > -1 && endpos>pos) //если есть доп символы
-						children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
-							children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
-							children[j].innerText.substring(pos+(4-YT_type),endpos) +"/hqdefault.jpg'></img>";//тип или 2 или 3, если 2 то удаляю 4-2 символа(v=) иначе 4-3 (/)
-					else
-						children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
-							children[j].innerText+" </span> <img src=' https://i.ytimg.com/vi/" +
-							children[j].innerText.substring(pos+(4-YT_type)) +"/hqdefault.jpg'></img>";
-				}
-			}
-		}
 		messages[i].className = "modified LinkToImg"; //меняем имя класса чтоб выкинуть из выборки уже проверенные сообщения
 	}
 },0); // и все это в потоке
