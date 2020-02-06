@@ -19,7 +19,7 @@ setInterval(function() {
 	
 },0); //в отдельном потоке
 
-function checker(message){
+function checker(message, full = true){
 	let result=[];
 	for (let i = 0; i < img.length; i++) {
 		if (message.indexOf(img[i]) > -1) {
@@ -27,6 +27,7 @@ function checker(message){
 			break;
 		}
 	}
+	if(!full) return result.length>0;
 	if(message.indexOf("youtube.com/watch") > -1){
 		result.push(2);
 	}
@@ -40,7 +41,7 @@ function parse_img(message){
 	let children = message.children; //берем всех детей сообщения
 	for(let j = 0; j < children.length; j++) //перебираем детей
 	{
-		if( checker(children[j].innerText) ) //если нашли нужного
+		if( checker(children[j].innerText, false) ) //если нашли нужного только по картинкам
 			if(children[j].innerText.indexOf("http") > -1)//если есть http то оставляем как есть
 				children[j].innerHTML = "<span data-a-target='chat-message-text'> "+
 					children[j].innerText+" </span> <img src='" + children[j].innerText +"'></img>"; //вставляем вместо ссылки картинку
