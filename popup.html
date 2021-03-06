@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<!--    <style>
+        /* The switch - the box around the slider */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* The slider */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>-->
+    <style>
+        input[type="checkbox"]{
+            position: relative;
+            width: 60px;
+            height: 30px;
+            -webkit-appearance: none;
+            background: #c6c6c6;
+            outline: none;
+            border-radius: 20px;
+            box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+            transition: .5s;
+        }
+        input:checked[type="checkbox"]
+        {
+            background: #03a9f4;
+        }
+        input[type="checkbox"]:before
+        {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 100%;
+            border-radius: 20px;
+            top: 0;
+            left: 0;
+            background: #ffffff;
+            transition: .5s;
+        }
+        input:checked[type="checkbox"]:before
+        {
+            left: 30px;
+        }
+        .switch-description{
+            font-size: 1.1em;
+            word-wrap: break-spaces;
+            width: calc(100% - 100px);
+            display: inline;
+            top:45%;
+            transform: translate(0, -50%);
+            position: absolute
+        }
+    </style>
+
+</head>
+<body>
+
+<div style="width: 300px">
+    <div style="position: relative;">
+        <input type="checkbox" id="href-switch">
+        <div class="switch-description">
+            Возвращать удаленные ссылки
+        </div>
+    </div>
+    <div style="position: relative;">
+        <input type="checkbox" id="img-switch">
+        <div class="switch-description">
+            Показывать картинки в чате
+        </div>
+    </div>
+    <div style="position: relative;">
+        <input type="checkbox" id="point-switch">
+        <div class="switch-description">
+            Нажимать кнопку получения поинтов
+        </div>
+    </div>
+    <div style="position: relative;">
+        <input type="checkbox" id="auc-switch">
+        <div class="switch-description">
+            Добавлять функционал аукциона
+        </div>
+    </div>
+</div>
+
+<!--    <table style="width: 25em">
+        <tr>
+            <td>
+                <label class="switch" >
+                    <input type="checkbox" id="href-switch">
+                    <span class="slider round" ></span>
+                </label>
+            </td>
+            <td>
+                <div style="vertical-align: middle">Возвращать удаленные ссылки</div>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <label class="switch" >
+                    <input type="checkbox" id="img-switch">
+                    <span class="slider round" ></span>
+                </label>
+            </td>
+            <td>
+                <div style="vertical-align: middle">Показывать картинки в чате</div>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                <label class="switch" >
+                    <input type="checkbox" id="point-switch">
+                    <span class="slider round" ></span>
+                </label>
+            </td>
+            <td>
+                <div style="vertical-align: middle">Нажимать кнопку получения поинтов</div>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td>
+                <label class="switch" >
+                    <input type="checkbox" id="auc-switch">
+                    <span class="slider round" ></span>
+                </label>
+            </td>
+            <td>
+                <div style="vertical-align: middle">Добавлять функционал аукциона</div>
+            </td>
+        </tr>
+
+    </table>-->
+
+    <script src="popup.js"></script>
+</body>
+</html>
